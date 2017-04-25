@@ -2,7 +2,7 @@ import socket
 
 #   setup
 socketToServer = socket.socket()
-host = socket.gethostname()
+host = "76.30.234.227" # socket.gethostname()
 port = 1337
 
 #   be a client

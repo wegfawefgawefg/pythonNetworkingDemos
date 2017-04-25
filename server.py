@@ -2,7 +2,8 @@ import socket
 
 #   setup
 serverSocket = socket.socket()
-host = socket.gethostname()
+host = "10.0.0.43"  # socket.gethostname( )
+print( host )
 port = 1337
 serverSocket.bind( (host, port) )
 
