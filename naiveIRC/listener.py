@@ -19,6 +19,10 @@ def checkForNewMessageFromServer( socketToServer ):
             dealWithNewMessageFromServer( messageFromServer, socketToServer )
     except socket.timeout:
         pass
+    except BrokenPipeError:
+        global serverOpen
+        serverOpen = False
+        print( "\n!!!!! SERVER DISCONNECTED !!!!!" )
 
 
 #   ====================    MAIN    ====================    #

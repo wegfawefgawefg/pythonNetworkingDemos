@@ -1,6 +1,7 @@
 import socket
 import collections
 import os
+import errno
 from sys import stdin
 
 #   ====================    FUNCTIONS    ====================    #
@@ -13,6 +14,10 @@ def checkForMessageFromUser( socketToServer ):
             socketToServer.send( userMessage.encode() )
         except socket.timeout:
             pass
+        except BrokenPipeError:
+            global serverOpen
+            serverOpen = False
+            print( "\n!!!!! SERVER DISCONNECTED !!!!!" )
 
 
 #   ====================    MAIN    ====================    #
