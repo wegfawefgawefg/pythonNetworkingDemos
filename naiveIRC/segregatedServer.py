@@ -8,7 +8,9 @@ def sendMessageToAllListeners( message, listeners ):
     for listener in listeners:
         try:
             listener.send( message.encode() )
-        else:
+        except socket.timeout:
+            pass
+        except socket.error:
             print( "\n!!! LISTENER DISCONNECTED !!!" )
 
 #   check for new messages from clients
@@ -24,8 +26,10 @@ def checkForNewMessages( speakers, listeners ):
                 sendMessageToAllListeners( messageFromSpeaker, listeners )
         except socket.timeout:
             pass
-        else:
+        except socket.error:
             print( "\n!!! SPEAKER DISCONNECTED !!!" )
+            bytesFromSpeaker = None
+
 
 
 #   deal with new client connection

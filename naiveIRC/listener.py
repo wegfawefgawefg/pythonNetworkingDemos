@@ -19,10 +19,7 @@ def checkForNewMessageFromServer( socketToServer ):
             dealWithNewMessageFromServer( messageFromServer, socketToServer )
     except socket.timeout:
         pass
-    else:
-        print( "\n!!! CONNECTION LOST !!!" )
-        global serverOpen
-        serverOpen = False
+
 
 #   ====================    MAIN    ====================    #
 #   -----   setup   -----   #

@@ -13,10 +13,6 @@ def checkForMessageFromUser( socketToServer ):
             socketToServer.send( userMessage.encode() )
         except socket.timeout:
             pass
-        else:
-            print( "\n!!! CONNECTION LOST !!!" )
-            global serverOpen
-            serverOpen = False
 
 
 #   ====================    MAIN    ====================    #
