@@ -4,17 +4,16 @@ import collections
 #   ====================    FUNCTIONS    ====================    #
 #   send a message to every connected client
 def sendMessageToAllListeners( message, listeners ):
-    print( "the listeners listen..." )
+    #print( "the listeners listen..." )
     for listener in listeners:
         try:
             listener.send( message.encode() )
-        except socket.error:
-            #addClientConnectionToADisconnectList( listener, disconnectedListeners )
-            pass
+        else:
+            print( "\n!!! LISTENER DISCONNECTED !!!" )
 
 #   check for new messages from clients
 def checkForNewMessages( speakers, listeners ):
-    print( "checking for new messages..." )
+    #print( "checking for new messages..." )
     for speaker in speakers:
         bytesFromSpeaker = None
         try:
@@ -25,8 +24,9 @@ def checkForNewMessages( speakers, listeners ):
                 sendMessageToAllListeners( messageFromSpeaker, listeners )
         except socket.timeout:
             pass
-        except socket.error:
-            pass
+        else:
+            print( "\n!!! SPEAKER DISCONNECTED !!!" )
+
 
 #   deal with new client connection
 def dealWithNewClientConnection( newClientConnection, newClientIPAddress, speakers, listeners ):
