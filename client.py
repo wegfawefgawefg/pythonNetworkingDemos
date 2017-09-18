@@ -2,8 +2,8 @@ import socket
 
 #   -----   setup   -----   #
 socketToServer = socket.socket()
-#T430SIP = 76.30.234.227
-jacobsLaptopIP = 98.198.242.96
+#T430SIP = "76.30.234.227"
+jacobsLaptopIP = "98.198.242.96"
 serverIP = jacobsLaptopIP
 port = 1337
 
