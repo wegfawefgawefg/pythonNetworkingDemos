@@ -11,7 +11,6 @@ def dealWithNewMessageFromServer( messageFromServer, socketToServer ):
 
 #   check for a message from the server
 def checkForNewMessageFromServer( socketToServer ):
-    socketToServer.settimeout( 0.1 )
     bytesFromServer = None
     try:
         bytesFromServer = socketToServer.recv( 1024 )
@@ -40,5 +39,6 @@ print( serverGreeting )
 #   -----   be a client -----   #
 userMessage = None
 bytesFromServer = None
+socketToServer.settimeout( 0.001 )
 while True:
     checkForNewMessageFromServer( socketToServer )

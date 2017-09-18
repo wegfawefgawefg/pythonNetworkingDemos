@@ -75,6 +75,7 @@ def addClientConnectionToDisconnectList( connectedClient, disconnectedClients ):
 #   ====================    MAIN    ====================    #
 #   -----   setup   -----   #
 serverSocket = socket.socket()
+serverSocket.settimeout( 0.01 )
 #serverSocket.setblocking(0)
 hostLocalIP = "10.0.0.43"
 print( hostLocalIP )

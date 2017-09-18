@@ -31,5 +31,6 @@ print( serverGreeting )
 #   -----   be a client -----   #
 userMessage = None
 bytesFromServer = None
+socketToServer.settimeout( 0.001 )
 while True:
     checkForMessageFromUser( socketToServer )

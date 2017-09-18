@@ -3,21 +3,20 @@ import collections
 
 #   ====================    FUNCTIONS    ====================    #
 #   check for new messages from clients
-def checkForNewMessages( speakers, listeners, disconnectedSpeakers, disconnectedListeners ):
+def checkForNewMessages( speakers, listeners ):
+    print( "checking for new messages..." )
     for speaker in speakers:
-        speaker.settimeout( 0.1 )
         bytesFromSpeaker = None
         try:
             bytesFromSpeaker = speaker.recv( 1024 )
         except socket.timeout:
             pass
         except socket.error:
-            #addClientConnectionToADisconnectList( speaker, disconnectedSpeakers )
             pass
         if bytesFromSpeaker is not None:
+            print( "A traveler speaks..." )
             messageFromSpeaker = bytesFromSpeaker.decode()
-            #dealWithNewMessageFromSpeaker( messageFromSpeaker )
-            sendMessageToAllListeners( messageFromSpeaker, listeners, disconnectedListeners )
+            sendMessageToAllListeners( messageFromSpeaker, listeners )
 
 #   deal with new client connection
 def dealWithNewClientConnection( newClientConnection, newClientIPAddress, speakers, listeners ):
@@ -28,32 +27,31 @@ def dealWithNewClientConnection( newClientConnection, newClientIPAddress, speake
     bytesFromClient = newClientConnection.recv( 4 )
     clientType = bytesFromClient.decode()
     if clientType == "SPKR":
+        newClientConnection.settimeout( 0.01 )
         speakers.append( newClientConnection )
         newClientConnection.send( speakerGreeting.encode() )
-    elif clientType == "LSTN":
+    if clientType == "LSTN":
+        newClientConnection.settimeout( 0.01 )
         listeners.append( newClientConnection )
         newClientConnection.send( listenerGreeting.encode() )
-    else:
-    #   shun the client, and do not save
-        newClientConnection.send( goodbye.encode() );
-        newClientConnection.shutdown();
-        newClientConnection.close();
 
 #   check for new client connection
 def checkForNewClientConnection( speakers, listeners ):
-        newClientConnection = None
-        newClientIPAddress = None
-        try:
-            newClientConnection, newClientIPAddress = serverSocket.accept()
-        except socket.timeout:
-            pass
-        if newClientConnection is not None:
-            dealWithNewClientConnection( newClientConnection, newClientIPAddress, speakers, listeners )
+    print( "checking for new travelers..." )
+    newClientConnection = None
+    newClientIPAddress = None
+    try:
+        newClientConnection, newClientIPAddress = serverSocket.accept()
+    except socket.timeout:
+        pass
+    if newClientConnection is not None:
+        dealWithNewClientConnection( newClientConnection, newClientIPAddress, speakers, listeners )
 
 #   send a message to every connected client
 def sendMessageToAllListeners( message, listeners ):
     print( "broadcasting" )
     for listener in listeners:
+        listener.settimeout( 0.01 )
         try:
             listener.send( message.encode() )
         except socket.error:
@@ -63,6 +61,7 @@ def sendMessageToAllListeners( message, listeners ):
 #   ====================    MAIN    ====================    #
 #   -----   setup   -----   #
 serverSocket = socket.socket()
+serverSocket.settimeout( 5 )
 #serverSocket.setblocking(0)
 hostLocalIP = "10.0.0.43"
 print( hostLocalIP )
@@ -90,7 +89,7 @@ newMessages = collections.deque()
 
 #   -----   be a server -----   #
 serverSocket.listen(5)
-
+serverSocket.settimeout( 0.001 )
 while True:
-    checkForNewMessages( speakers, listeners )
     checkForNewClientConnection( speakers, listeners )
+    checkForNewMessages( speakers, listeners )
