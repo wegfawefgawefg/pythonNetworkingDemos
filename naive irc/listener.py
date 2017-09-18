@@ -7,18 +7,22 @@ from sys import stdin
 #   deal with newly received message from server
 def dealWithNewMessageFromServer( messageFromServer, socketToServer ):
     #   this is where we would see what the message type is or something
-    print( messageFromServer )
+    print( messageFromServer, end = '' )
 
 #   check for a message from the server
 def checkForNewMessageFromServer( socketToServer ):
     bytesFromServer = None
     try:
         bytesFromServer = socketToServer.recv( 1024 )
+        if bytesFromServer is not None:
+            messageFromServer = bytesFromServer.decode()
+            dealWithNewMessageFromServer( messageFromServer, socketToServer )
     except socket.timeout:
         pass
-    if bytesFromServer is not None:
-        messageFromServer = bytesFromServer.decode()
-        dealWithNewMessageFromServer( messageFromServer, socketToServer )
+    else:
+        print( "\n!!! CONNECTION LOST !!!" )
+        global serverOpen
+        serverOpen = False
 
 #   ====================    MAIN    ====================    #
 #   -----   setup   -----   #
@@ -40,5 +44,6 @@ print( serverGreeting )
 userMessage = None
 bytesFromServer = None
 socketToServer.settimeout( 0.001 )
-while True:
+serverOpen = True
+while serverOpen:
     checkForNewMessageFromServer( socketToServer )

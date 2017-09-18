@@ -9,7 +9,14 @@ def checkForMessageFromUser( socketToServer ):
     userMessage = None
     userMessage = stdin.readline()
     if userMessage is not None:
-        socketToServer.send( userMessage.encode() )
+        try:
+            socketToServer.send( userMessage.encode() )
+        except socket.timeout:
+            pass
+        else:
+            print( "\n!!! CONNECTION LOST !!!" )
+            global serverOpen
+            serverOpen = False
 
 
 #   ====================    MAIN    ====================    #
@@ -32,5 +39,6 @@ print( serverGreeting )
 userMessage = None
 bytesFromServer = None
 socketToServer.settimeout( 0.001 )
-while True:
+serverOpen = True
+while serverOpen:
     checkForMessageFromUser( socketToServer )
