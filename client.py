@@ -2,11 +2,11 @@ import socket
 
 #   setup
 socketToServer = socket.socket()
-host = "76.30.234.227" # socket.gethostname()
+serverIP = "76.30.234.227"
 port = 1337
 
 #   be a client
-socketToServer.connect( (host, port) )
+socketToServer.connect( (serverIP, port) )
 bytesFromServer = socketToServer.recv( 1024 )
 messageFromServer = bytesFromServer.decode()
 print( messageFromServer )
