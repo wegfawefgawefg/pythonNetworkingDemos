@@ -1,21 +1,28 @@
 import socket
 import collections
+import os
 from sys import stdin
 
 #   ====================    FUNCTIONS    ====================    #
 #   display everything
 def displayEverything( messages ):
+    #   clear the terminal
+    print()
+    os.system('cls' if os.name == 'nt' else 'clear')
+
     #   display the messages
     for message in messages:
-        print( message )
+        print( message, end = '' )
 
     #   display the prompt
+    print()
     print( "========================================" )
     print( "$: ", end = '' )
+    stdin.flush()
 
 #   add a new message from the server to the list of user messages
-def addNewMessageToMessage( messageFromServer ):
-    messages.popLeft()
+def addNewMessageToMessages( messageFromServer ):
+    messages.popleft()
     messages.append( messageFromServer )
 
 #   deal with newly received message from server
@@ -30,7 +37,7 @@ def dealWithNewMessageFromServer( messageFromServer, socketToServer ):
 
 #   check for a message from the server
 def checkForNewMessageFromServer( socketToServer ):
-    socketToServer.settimeout( 0.01 )
+    socketToServer.settimeout( 0.1 )
     bytesFromServer = None
     try:
         bytesFromServer = socketToServer.recv( 1024 )
@@ -40,7 +47,7 @@ def checkForNewMessageFromServer( socketToServer ):
         messageFromServer = bytesFromServer.decode()
         dealWithNewMessageFromServer( messageFromServer, socketToServer )
 
-#   respond to connection test from serverSocket
+#   respond to connection test from socketToServer
 def respondToConnectionTest( socketToServer ):
     response = "STILL CONNECTED"
     socketToServer.send( response.encode() )
@@ -55,7 +62,7 @@ def checkForMessageFromUser( socketToServer ):
 
 #   ====================    MAIN    ====================    #
 #   -----   setup   -----   #
-socketToServer = socket.socket()
+socketToServer = socket.socket( )
 #socketToServer.setblocking(0)
 host = "76.30.234.227"
 port = 1337
@@ -72,12 +79,13 @@ bytesFromServer = None
 messages = collections.deque()
 maxMessagesStored = 20
 for i in range( 0, maxMessagesStored ):
-    blankMessage = ""
+    blankMessage = "no message yet\n"
     messages.append( blankMessage );
 
 #   -----   be a client -----   #
 userMessage = None
 bytesFromServer = None
 while True:
-    checkForNewMessageFromServer( serverSocket )
-    checkForMessageFromUser( serverSocket )
+    displayEverything( messages )
+    checkForNewMessageFromServer( socketToServer )
+    checkForMessageFromUser( socketToServer )

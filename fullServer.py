@@ -11,7 +11,7 @@ def dealWithNewMessageFromClient( messageFromClient ):
     newMessages.append( messageFromClient )
 
 #   check for new messages from clients
-def checkForNewMessagesFromClients( connectedClients ):
+def checkForNewMessagesFromClients( connectedClients, disconnectedClients ):
     for connectedClient in connectedClients:
         connectedClient.settimeout( 0.01 )
         bytesFromClient = None
@@ -19,7 +19,9 @@ def checkForNewMessagesFromClients( connectedClients ):
             bytesFromClient = connectedClient.recv( 1024 )
         except socket.timeout:
             pass
-        if rawMessageFromClient is not None:
+        except socket.error:
+            addClientConnectionToDisconnectList( connectedClient, disconnectedClients )
+        if bytesFromClient is not None:
             messageFromClient = bytesFromClient.decode()
             dealWithNewMessageFromClient( messageFromClient )
 
@@ -43,15 +45,32 @@ def checkForNewClientConnection( connectedClients ):
             dealWithNewClientConnection( newClientConnection, newClientIPAddress, connectedClients )
 
 #   send all the new messages waiting to be sent
-def sendAnyPendingNewMessages( newMessages, connectedClients ):
+def sendAnyPendingNewMessages( newMessages, connectedClients, disconnectedClients ):
     while( len( newMessages ) > 0 ):
-        newMessage = newMessages.popLeft()
-        sendMessageToAllClientConnections( newMessage )
+        newMessage = newMessages.popleft()
+        sendMessageToAllClientConnections( newMessage, connectedClients, disconnectedClients )
 
 #   send a message to every connected client
-def sendMessageToAllClientConnections( message, connectedClients ):
+def sendMessageToAllClientConnections( message, connectedClients, disconnectedClients ):
     for connectedClient in connectedClients:
-        connectedClient.send( message )
+        try:
+            connectedClient.send( message.encode() )
+        except socket.error:
+            addClientConnectionToDisconnectList( connectedClient, disconnectedClients )
+
+#   remove disconnected clients from list fo clients
+def removeDisconnectedClients( disconnectedClients, connectedClients ):
+    for disconnectedClient in disconnectedClients:
+        connectedClients.remove( disconnectedClient )
+        print( "Traveler has left." )
+
+    #   empty the disconectedClients list
+    disconnectedClients.clear()
+
+#   add an errord client connection to the remove list
+def addClientConnectionToDisconnectList( connectedClient, disconnectedClients ):
+    if connectedClient not in disconnectedClients:
+        disconnectedClients.append( connectedClient )
 
 #   ====================    MAIN    ====================    #
 #   -----   setup   -----   #
@@ -60,6 +79,7 @@ serverSocket = socket.socket()
 hostLocalIP = "10.0.0.43"
 print( hostLocalIP )
 port = 1337
+serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 serverSocket.bind( (hostLocalIP, port) )
 
 greeting = "Welcome, traveler."
@@ -67,6 +87,9 @@ greeting = "Welcome, traveler."
 #   -----   setup state    -----   #
 #   list of all connected clients
 connectedClients = []
+
+#   list of clients to be removed
+disconnectedClients = []
 
 #   newMesssages container
 newMessages = collections.deque()
@@ -77,6 +100,7 @@ newMessages = collections.deque()
 serverSocket.listen(5)
 
 while True:
-    checkForNewMessagesFromClients( connectedClients )
-    sendAnyPendingNewMessages( newMessages, connectedClients )
+    checkForNewMessagesFromClients( connectedClients, disconnectedClients )
+    sendAnyPendingNewMessages( newMessages, connectedClients, disconnectedClients )
+    removeDisconnectedClients( disconnectedClients, connectedClients )
     checkForNewClientConnection( connectedClients )
